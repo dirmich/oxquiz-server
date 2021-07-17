@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  mongo:
+    container_name: mongo
+    image: mongo
+    volumes:
+      - ./mongodata:/data/db
+    ports:
+      - 27017:27017
+    networks:
+      - backend
+  server:
+    container_name: server
+    # image: server
+    image: dirmich/slot-server:latest
+    restart: always
+    build: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 3301:3301
+    depends_on: 
+      - mongo
+    networks:
+      - backend
+  game:
+    container_name: game
+    image: nginx
+    # build: .
+    volumes:
+      # - ./web/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dist:/usr/share/nginx/html
+    ports:
+      # - "8080:80"
+      - "80:80"
+    networks:
+      - backend
+networks:
+  backend:
+    driver: bridge
